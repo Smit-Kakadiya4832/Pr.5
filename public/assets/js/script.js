@@ -3,75 +3,38 @@
 
 
 /**
- * PRELOAD
- * 
- * loading will be end after document is loaded
- */
-
-const preloader = document.querySelector("[data-preaload]");
-
-window.addEventListener("load", function () {
-  preloader.classList.add("loaded");
-  document.body.classList.add("loaded");
-});
-
-
-
-/**
- * add event listener on multiple elements
- */
-
-const addEventOnElements = function (elements, eventType, callback) {
-  for (let i = 0, len = elements.length; i < len; i++) {
-    elements[i].addEventListener(eventType, callback);
-  }
-}
-
-
-
-/**
- * NAVBAR
+ * navbar toggle
  */
 
 const navbar = document.querySelector("[data-navbar]");
-const navTogglers = document.querySelectorAll("[data-nav-toggler]");
-const overlay = document.querySelector("[data-overlay]");
+const navbarLinks = document.querySelectorAll("[data-nav-link]");
+const menuToggleBtn = document.querySelector("[data-menu-toggle-btn]");
 
-const toggleNavbar = function () {
+menuToggleBtn.addEventListener("click", function () {
   navbar.classList.toggle("active");
-  overlay.classList.toggle("active");
-  document.body.classList.toggle("nav-active");
-}
+  this.classList.toggle("active");
+});
 
-addEventOnElements(navTogglers, "click", toggleNavbar);
+for (let i = 0; i < navbarLinks.length; i++) {
+  navbarLinks[i].addEventListener("click", function () {
+    navbar.classList.toggle("active");
+    menuToggleBtn.classList.toggle("active");
+  });
+}
 
 
 
 /**
- * HEADER & BACK TOP BTN
+ * header sticky & back to top
  */
 
 const header = document.querySelector("[data-header]");
 const backTopBtn = document.querySelector("[data-back-top-btn]");
 
-let lastScrollPos = 0;
-
-const hideHeader = function () {
-  const isScrollBottom = lastScrollPos < window.scrollY;
-  if (isScrollBottom) {
-    header.classList.add("hide");
-  } else {
-    header.classList.remove("hide");
-  }
-
-  lastScrollPos = window.scrollY;
-}
-
 window.addEventListener("scroll", function () {
-  if (window.scrollY >= 50) {
+  if (window.scrollY >= 100) {
     header.classList.add("active");
     backTopBtn.classList.add("active");
-    hideHeader();
   } else {
     header.classList.remove("active");
     backTopBtn.classList.remove("active");
@@ -81,90 +44,49 @@ window.addEventListener("scroll", function () {
 
 
 /**
- * HERO SLIDER
+ * search box toggle
  */
 
-const heroSlider = document.querySelector("[data-hero-slider]");
-const heroSliderItems = document.querySelectorAll("[data-hero-slider-item]");
-const heroSliderPrevBtn = document.querySelector("[data-prev-btn]");
-const heroSliderNextBtn = document.querySelector("[data-next-btn]");
+const searchBtn = document.querySelector("[data-search-btn]");
+const searchContainer = document.querySelector("[data-search-container]");
+const searchSubmitBtn = document.querySelector("[data-search-submit-btn]");
+const searchCloseBtn = document.querySelector("[data-search-close-btn]");
 
-let currentSlidePos = 0;
-let lastActiveSliderItem = heroSliderItems[0];
+const searchBoxElems = [searchBtn, searchSubmitBtn, searchCloseBtn];
 
-const updateSliderPos = function () {
-  lastActiveSliderItem.classList.remove("active");
-  heroSliderItems[currentSlidePos].classList.add("active");
-  lastActiveSliderItem = heroSliderItems[currentSlidePos];
+for (let i = 0; i < searchBoxElems.length; i++) {
+  searchBoxElems[i].addEventListener("click", function () {
+    searchContainer.classList.toggle("active");
+    document.body.classList.toggle("active");
+  });
 }
-
-const slideNext = function () {
-  if (currentSlidePos >= heroSliderItems.length - 1) {
-    currentSlidePos = 0;
-  } else {
-    currentSlidePos++;
-  }
-
-  updateSliderPos();
-}
-
-heroSliderNextBtn.addEventListener("click", slideNext);
-
-const slidePrev = function () {
-  if (currentSlidePos <= 0) {
-    currentSlidePos = heroSliderItems.length - 1;
-  } else {
-    currentSlidePos--;
-  }
-
-  updateSliderPos();
-}
-
-heroSliderPrevBtn.addEventListener("click", slidePrev);
-
-/**
- * auto slide
- */
-
-let autoSlideInterval;
-
-const autoSlide = function () {
-  autoSlideInterval = setInterval(function () {
-    slideNext();
-  }, 7000);
-}
-
-addEventOnElements([heroSliderNextBtn, heroSliderPrevBtn], "mouseover", function () {
-  clearInterval(autoSlideInterval);
-});
-
-addEventOnElements([heroSliderNextBtn, heroSliderPrevBtn], "mouseout", autoSlide);
-
-window.addEventListener("load", autoSlide);
 
 
 
 /**
- * PARALLAX EFFECT
+ * move cycle on scroll
  */
 
-const parallaxItems = document.querySelectorAll("[data-parallax-item]");
+const deliveryBoy = document.querySelector("[data-delivery-boy]");
 
-let x, y;
+let deliveryBoyMove = -80;
+let lastScrollPos = 0;
 
-window.addEventListener("mousemove", function (event) {
+window.addEventListener("scroll", function () {
 
-  x = (event.clientX / window.innerWidth * 10) - 5;
-  y = (event.clientY / window.innerHeight * 10) - 5;
+  let deliveryBoyTopPos = deliveryBoy.getBoundingClientRect().top;
 
-  // reverse the number eg. 20 -> -20, -5 -> 5
-  x = x - (x * 2);
-  y = y - (y * 2);
+  if (deliveryBoyTopPos < 500 && deliveryBoyTopPos > -250) {
+    let activeScrollPos = window.scrollY;
 
-  for (let i = 0, len = parallaxItems.length; i < len; i++) {
-    x = x * Number(parallaxItems[i].dataset.parallaxSpeed);
-    y = y * Number(parallaxItems[i].dataset.parallaxSpeed);
-    parallaxItems[i].style.transform = `translate3d(${x}px, ${y}px, 0px)`;
+    if (lastScrollPos < activeScrollPos) {
+      deliveryBoyMove += 1;
+    } else {
+      deliveryBoyMove -= 1;
+    }
+
+    lastScrollPos = activeScrollPos;
+    deliveryBoy.style.transform = `translateX(${deliveryBoyMove}px)`;
   }
 
 });
